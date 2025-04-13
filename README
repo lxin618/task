@@ -6,8 +6,8 @@ My personal laptop is too old to run workloads locally, so used vscode online ve
 
 - File selection with size/type validation
 - Simulated file "submission" with `task_id`
-- Polls task status every 10 seconds till status changes in 2nd try
-- Supports cancellation and stops on network failure
+- Polls task status every 10 seconds till status changes in 2nd try or reach 3 times max retry
+- Supports manual cancellation and retry 3 times on network failure
 - Mobile-friendly layout
 - Task list display with current status
 - No actual API integration – everything is mocked
