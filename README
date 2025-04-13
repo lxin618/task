@@ -1,0 +1,19 @@
+# 📁 File Upload & Task Status Tracker
+
+I don't have a laptop atm, so used vscode online verion to write the code with access to terminal.
+
+## 🚀 Features
+
+- File selection with size/type validation
+- Simulated file "submission" with `task_id`
+- Polls task status every 10 seconds till status changes in 2nd try
+- Supports cancellation and stops on network failure
+- Mobile-friendly layout
+- Task list display with current status
+- No actual API integration – everything is mocked
+
+- What did you choose to mock the API and why? i didnt use any lib, just a simple return, easy and clear for demo
+- If you used an AI tool, what parts did it help with? didn't really use any AI tools as i only used vscode online version, otherwise i wouldve used coploit to save dev time 
+- What tradeoffs or shortcuts did you take? just a simple app with flat file structure, no custom hooks, context api or anything complex, just a simple logic and display
+- What would you improve or add with more time? couldve added some jest test, proper file structure, custom hooks, re-useable components/methods
+- What was the trickiest part and how did you debug it? no road blocks

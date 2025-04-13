@@ -1,0 +1,31 @@
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f7fa;
+}
+
+h2 {
+    text-align: center;
+}
+
+input[type="file"] {
+    display: block;
+    margin: 10px 0;
+    }
+
+button {
+    margin-left: 10px;
+}
+
+div {
+    margin-bottom: 20px;
+}
+
+@media (max-width: 600px) {
+div {
+    padding: 10px;
+}
+
+h2 {
+    font-size: 18px;
+}
+}
