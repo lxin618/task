@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { FileInputComponent } from "./FileInputComponent";
 
 interface Task {
@@ -13,64 +13,87 @@ export const TaskComponent = () => {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<string | null>(null);
 
+    // Refs for managing polling state
+    const intervalIdRef = useRef(null);
+    const retriesRef = useRef(0);
+    const maxRetries = 3;
+    // Poll every 10 seconds
+    const pollInterval = 10000;
+
+    useEffect(() => {
+        // Clean up polling on component unmount
+        return () => {
+            if (intervalIdRef.current) {
+                clearInterval(intervalIdRef.current);
+            }
+        };
+    }, []);
+
+    const handleRetry = () => {
+        retriesRef.current += 1;
+        if (retriesRef.current >= maxRetries) {
+            setError("Polling failed after 3 retries.");
+            if (intervalIdRef.current) {
+                clearInterval(intervalIdRef.current);
+                intervalIdRef.current = null;
+            }
+        }
+    };
+
     const taskSubmission = async (file: File) => {
 
         setLoading(true);
+        retriesRef.current = 0;
 
         try {
             // simulate API call to submit the file
-            // random taskid
             const response = { task_id: Math.random().toString(36).substring(2, 6) };
             const task_id = response.task_id;
-      
-            const newTask: Task = { task_id, status: "Pending" };
-            setTasks((prevTasks:  Task[]) => [...prevTasks, newTask]);
-      
-            pollTaskStatus(task_id);
 
-          } catch (error) {
+            const newTask: Task = { task_id, status: "Pending" };
+            setTasks((prevTasks: Task[]) => [...prevTasks, newTask]);
+
+            pollTaskStatus(task_id);
+        } catch (error) {
             setError("Failed to submit file");
             setLoading(false);
-          }
+        }
     }
 
     const pollTaskStatus = (task_id: string) => {
 
-        let retries = 0;
-
-        // poll every 10 secs
-        const intervalId = setInterval(async () => {
-
+        // Start polling
+        intervalIdRef.current = setInterval(async () => {
             try {
-                // simulate API call to get task status
-                // simluate a delay, only change status after 1st try
-                const response = retries < 1 ? { status: "Pending" } : {status: "Successful"};
+                // Simulate network failure 20% of the time
+                if (Math.random() < 0.2) {
+                    throw new Error("Network failure");
+                }
+
+                // Simulate backend response
+                // Successful 2nd poll
+                const response = retriesRef.current < 1 ? { status: "Pending" } : { status: "Successful" };
                 const status = response.status;
 
-                // stop processing if not pending
-                // update status
-                if (status != 'Pending') {
+                // if not pending means BE gives a response
+                // can stop polling now
+                if (status !== "Pending") {
                     setTasks((prevTasks: Task[]) =>
                         prevTasks.map((task) =>
                             task.task_id === task_id ? { ...task, status } : task
                         )
                     );
-                    clearInterval(intervalId);
+                    clearInterval(intervalIdRef.current!);
+                    intervalIdRef.current = null;
                 }
-                // else increment counter to retry
+                // otherwise keep going till retry over 3 or BE gives proper response 
                 else {
-                    retries += 1;
+                    handleRetry();
                 }
-
+            } catch (err) {
+                handleRetry();
             }
-            catch(error) {
-                // just stop here if something wrong to stop loading server
-                clearInterval(intervalId);
-                setError("Failed to poll the file - server side error");
-            }
-
-        }, 10000)
-
+        }, pollInterval);
     }
 
     const handleFileSelect = (file: File) => {
